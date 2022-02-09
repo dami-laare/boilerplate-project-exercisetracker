@@ -48,7 +48,7 @@ exports.createExercise = async (req, res, next) => {
     res.json({
         username: user.username,
         description,
-        duration,
+        duration: Number(duration),
         date: dateFinal.toDateString(),
         _id: user._id
     });
@@ -63,6 +63,8 @@ exports.getLog = async (req, res, next) => {
     if(!user) {
         return res.send("User not found!!!")
     }
+    console.log(typeof(user.log[0].date));
+    console.log(user.log);
     res.json({
         username: user.username,
         count: user.log.length,
