@@ -23,5 +23,8 @@
 	"keywords": [
 		"node",
 		"express"
-	]
+	],
+	"engines": {
+		"node": "16.13.2"
+	}
 }
