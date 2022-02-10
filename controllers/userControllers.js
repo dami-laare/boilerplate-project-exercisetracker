@@ -65,6 +65,7 @@ exports.getLog = async (req, res, next) => {
         return res.send("User not found!!!")
     }
     
+    // This part handles the response in the event that the queries exist in the request headers
     if(Object.keys(req.query).length > 0) {
         let { from, to, limit } = req.query;  
         // Get dates in ms
@@ -74,6 +75,8 @@ exports.getLog = async (req, res, next) => {
         
         let finalUserLogs = user.log;
 
+
+        // Filter using the query dates
         finalUserLogs = finalUserLogs.filter(userLog => {
             const dateInMs = Date.parse(userLog.date)
 
@@ -86,6 +89,8 @@ exports.getLog = async (req, res, next) => {
             return dateInMs >= from && dateInMs <= to;
         })
         let finalUserLogsFinal = [];
+
+        // Limit the amount of results in the final response
         if(limit){
             for(let i = 0; i < limit; i++){
                 finalUserLogsFinal.push(user.log[i])
@@ -93,6 +98,7 @@ exports.getLog = async (req, res, next) => {
         }else{
             finalUserLogsFinal= finalUserLogs
         }
+        
         return res.json({
                     username: user.username,
                     count: finalUserLogsFinal.length,
@@ -101,6 +107,7 @@ exports.getLog = async (req, res, next) => {
                 })    
 
     }
+
     res.json({
         username: user.username,
         count: user.log.length,
