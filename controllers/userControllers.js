@@ -1,3 +1,4 @@
+const { findOneAndReplace } = require('../models/user');
 const User = require('../models/user');
 
 // Gets all users from the database ==> /api/users
@@ -66,25 +67,37 @@ exports.getLog = async (req, res, next) => {
     
     if(Object.keys(req.query).length > 0) {
         let { from, to, limit } = req.query;  
-        
         // Get dates in ms
         from = Date.parse(from);
         to = Date.parse(to);
 
-        let finalUserLogs = [];
-        for(let i = 0; i < limit; i++){
-            finalUserLogs.push(user.log[i])
-        }
         
+        let finalUserLogs = user.log;
+
         finalUserLogs = finalUserLogs.filter(userLog => {
             const dateInMs = Date.parse(userLog.date)
+
+            if(!from || !to){
+                return dateInMs<= to || dateInMs >= from;
+            }
+            if(!from && !to){
+                return true
+            }
             return dateInMs >= from && dateInMs <= to;
         })
+        let finalUserLogsFinal = [];
+        if(limit){
+            for(let i = 0; i < limit; i++){
+                finalUserLogsFinal.push(user.log[i])
+            }
+        }else{
+            finalUserLogsFinal= finalUserLogs
+        }
         return res.json({
                     username: user.username,
-                    count: finalUserLogs.length,
+                    count: finalUserLogsFinal.length,
                     _id: user._id,
-                    log: finalUserLogs
+                    log: finalUserLogsFinal
                 })    
 
     }
