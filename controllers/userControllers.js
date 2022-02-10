@@ -58,13 +58,36 @@ exports.createExercise = async (req, res, next) => {
 
 // Get exercise log for a user by ID ==> api/users/:id/logs
 exports.getLog = async (req, res, next) => {
-    const user = await User.findById(req.params.id);
+    let user = await User.findById(req.params.id);
 
     if(!user) {
         return res.send("User not found!!!")
     }
-    console.log(typeof(user.log[0].date));
-    console.log(user.log);
+    
+    if(Object.keys(req.query).length > 0) {
+        let { from, to, limit } = req.query;  
+        
+        // Get dates in ms
+        from = Date.parse(from);
+        to = Date.parse(to);
+
+        let finalUserLogs = [];
+        for(let i = 0; i < limit; i++){
+            finalUserLogs.push(user.log[i])
+        }
+        
+        finalUserLogs = finalUserLogs.filter(userLog => {
+            const dateInMs = Date.parse(userLog.date)
+            return dateInMs >= from && dateInMs <= to;
+        })
+        return res.json({
+                    username: user.username,
+                    count: finalUserLogs.length,
+                    _id: user._id,
+                    log: finalUserLogs
+                })    
+
+    }
     res.json({
         username: user.username,
         count: user.log.length,
